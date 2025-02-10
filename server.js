@@ -1,49 +1,36 @@
-const express = require("express");
-const http = require("http");
-const { Server } = require("socket.io");
-
-const app = express();
-const server = http.createServer(app);
-const io = new Server(server, {
+const express = require('express')
+const app = express()
+const server = require('http').createServer(app)
+const io = require('socket.io')(server, {
   cors: {
-    origin: "*",
-    methods: ["GET", "POST"]
-  }
-});
+    origin: '*',
+    methods: ['GET', 'POST'],
+  },
+})
 
-let videoState = {
-  isPlaying: false,
-  currentTime: 0,
-  videoUrl: "ВАША_ССЫЛКА_НА_ВИДЕО"
-};
+app.use(express.static('public'))
+const users = new Map()
 
-io.on("connection", (socket) => {
-  // Отправляем текущее состояние новому клиенту
-  socket.emit("sync", videoState);
+io.on('connection', (socket) => {
+  // Обработчик установки имени
+  socket.on('setName', (name) => {
+    users.set(socket.id, name || 'Неизвестный')
+    console.log(`Пользователь ${socket.id} установил имя: ${name}`)
+  })
 
-  // Обработка событий от клиентов
-  socket.on("play", () => {
-    videoState.isPlaying = true;
-    io.emit("play", videoState.currentTime);
-  });
+  // Обработчик сообщений
+  socket.on('message', (msg) => {
+    const userName = users.get(socket.id) || 'Неизвестный'
+    io.emit('message', {
+      name: userName,
+      text: msg.text,
+    })
+  })
 
-  socket.on("pause", () => {
-    videoState.isPlaying = false;
-    io.emit("pause", videoState.currentTime);
-  });
+  // Удаляем пользователя при отключении
+  socket.on('disconnect', () => {
+    users.delete(socket.id)
+  })
+})
 
-  socket.on("seek", (time) => {
-    videoState.currentTime = time;
-    io.emit("seek", time);
-  });
-
-  socket.on("timeupdate", (time) => {
-    videoState.currentTime = time;
-  });
-});
-
- 
-const PORT = process.env.PORT || 3000; // Используйте переменные окружения
-server.listen(PORT, () => {
-  console.log(`Сервер запущен на порту ${PORT}`);
-});
+server.listen(3000, () => console.log('Сервер запущен на порту 3000'))
