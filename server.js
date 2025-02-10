@@ -10,9 +10,7 @@ const io = require('socket.io')(server, {
 
 app.use(express.static('public'))
 const users = new Map()
-http.listen(process.env.PORT || 3000, () => {
-  console.log('Server is running');
-});
+ 
 io.on('connection', (socket) => {
   // Обработчик установки имени
   socket.on('setName', (name) => {
