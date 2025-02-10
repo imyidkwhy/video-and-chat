@@ -1,43 +1,50 @@
-const express = require('express');
+const express = require("express");
+const http = require("http");
+const { Server } = require("socket.io");
+
 const app = express();
-const server = require('http').createServer(app);
-const io = require('socket.io')(server, {
+const server = http.createServer(app);
+const io = new Server(server, {
   cors: {
-    origin: '*', // Для продакшена замените на домен вашего фронтенда!
-    methods: ['GET', 'POST'],
-  },
+    origin: "*",
+    methods: ["GET", "POST"]
+  }
 });
 
-app.use(express.static('public')); // Раздача статики из папки "public"
-const users = new Map(); // Хранилище пользователей
+let videoState = {
+  isPlaying: false,
+  currentTime: 0,
+  videoUrl: "ВАША_ССЫЛКА_НА_ВИДЕО"
+};
 
-io.on('connection', (socket) => {
-  // Установка имени пользователя
-  socket.on('setName', (name) => {
-    const trimmedName = name?.trim() || 'Неизвестный';
-    users.set(socket.id, trimmedName);
-    console.log(`Пользователь ${socket.id} установил имя: ${trimmedName}`);
+io.on("connection", (socket) => {
+  // Отправляем текущее состояние новому клиенту
+  socket.emit("sync", videoState);
+
+  // Обработка событий от клиентов
+  socket.on("play", () => {
+    videoState.isPlaying = true;
+    io.emit("play", videoState.currentTime);
   });
 
-  // Обработка сообщений
-  socket.on('message', (msg) => {
-    const userName = users.get(socket.id) || 'Неизвестный';
-    if (typeof msg.text === 'string' && msg.text.trim()) {
-      io.emit('message', {
-        name: userName,
-        text: msg.text.trim(),
-      });
-    }
+  socket.on("pause", () => {
+    videoState.isPlaying = false;
+    io.emit("pause", videoState.currentTime);
   });
 
-  // Удаление пользователя при отключении
-  socket.on('disconnect', () => {
-    users.delete(socket.id);
-    console.log(`Пользователь ${socket.id} отключен`);
+  socket.on("seek", (time) => {
+    videoState.currentTime = time;
+    io.emit("seek", time);
+  });
+
+  socket.on("timeupdate", (time) => {
+    videoState.currentTime = time;
   });
 });
 
-// Запуск сервера
+server.listen(3000, () => {
+  console.log("Сервер запущен на порту 3000");
+});
 const PORT = process.env.PORT || 3000; // Используйте переменные окружения
 server.listen(PORT, () => {
   console.log(`Сервер запущен на порту ${PORT}`);
