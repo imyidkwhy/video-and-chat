@@ -28,3 +28,4 @@ socket.on('message', (data) => {
   chatDiv.appendChild(messageElement)
   chatDiv.scrollTop = chatDiv.scrollHeight
 })
+
