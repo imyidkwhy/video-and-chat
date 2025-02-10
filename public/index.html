@@ -86,6 +86,23 @@
         bottom: 40px;
         right: 40px;
       }
+      /* Контейнер чата */
+.chat-container {
+  height: 40vh; /* Высота зависит от высоты экрана */
+  max-height: 400px; /* Ограничиваем максимальную высоту */
+  background: rgba(0, 0, 0, 0.9);
+  border-radius: 10px 10px 0 0;
+  overflow: hidden; /* Скрываем выход фона за границы */
+}
+
+/* Поле ввода */
+.chat-input {
+  width: calc(100% - 24px); /* Учитываем padding */
+  padding: 12px;
+  margin: 0 12px 12px 12px;
+  border-radius: 8px;
+  font-size: 16px;
+}
       /* Базовые стили */
  * Мобильная адаптация */
 @media (max-width: 768px) {
