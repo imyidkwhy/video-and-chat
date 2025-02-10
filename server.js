@@ -42,9 +42,7 @@ io.on("connection", (socket) => {
   });
 });
 
-server.listen(3000, () => {
-  console.log("Сервер запущен на порту 3000");
-});
+ 
 const PORT = process.env.PORT || 3000; // Используйте переменные окружения
 server.listen(PORT, () => {
   console.log(`Сервер запущен на порту ${PORT}`);
