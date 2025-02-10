@@ -137,5 +137,16 @@
 
     <script src="/socket.io/socket.io.js"></script>
     <script src="script.js"></script>
+    <script>// Пересчитываем высоту при изменении ориентации
+window.addEventListener("orientationchange", () => {
+  document.body.classList.toggle("landscape", 
+    window.matchMedia("(orientation: landscape)").matches
+  );
+});
+
+// Инициализация при загрузке
+if (window.matchMedia("(orientation: landscape)").matches) {
+  document.body.classList.add("landscape");
+}</script>
   </body>
 </html>
