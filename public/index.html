@@ -5,58 +5,99 @@
     <title>Кинотеатр с чатом</title>
     <link rel="stylesheet" href="style.css" />
     <style>
-     .chat-container {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  width: 280px;
-  max-height: 40vh;
- 
-  border-radius: 8px;
-  color: white;
-  z-index: 9999; /* Всегда поверх других элементов */
-  opacity: 0.9;
-  transition: all 0.3s ease;
-  transform: translateX(0);
-  backdrop-filter: blur(5px); /* Эффект размытия */
-}
+     * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-.chat-container.hidden {
-  transform: translateX(400px);
-}
+        body {
+            height: 100vh;
+            background: #000;
+            position: relative;
+        }
 
-/* При наведении чат становится ярче */
-.chat-container:hover {
-  opacity: 1;
-  background: rgba(0, 0, 0, 0.9);
-}
+        /* Видео на весь экран */
+        .fullscreen-video {
+            width: 100%;
+            height: 100vh;
+            object-fit: cover;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
 
-/* Полноэкранный режим */
-:fullscreen .chat-container {
-  bottom: 30px;
-  right: 30px;
-  width: 320px;
-  max-height: 50vh;
-}
+        /* Компактный чат */
+        .chat-container {
+            position: fixed;
+            bottom: 0;
+            right: 0;
+            width: 100%;
+            max-width: 400px;
+            z-index: 2;
+            transition: all 0.3s;
+        }
 
-/* Сообщения */
-.chat-messages {
-  height: calc(100% - 40px);
-  padding: 10px;
-  overflow-y: auto;
-  font-size: 14px;
-}
+        /* Адаптация для ландшафтного режима */
+        @media (orientation: landscape) {
+            .chat-container {
+                width: 40%;
+                right: 10px;
+                bottom: 10px;
+                max-height: 90vh;
+                display: flex;
+                flex-direction: column;
+            }
+        }
 
-/* Инпут для сообщений */
-#messageInput {
-  width: calc(100% - 20px);
-  margin: 10px;
-  padding: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  background: rgba(0, 0, 0, 0.5);
-  color: white;
-  border-radius: 5px;
-}
+        .messages-wrapper {
+            background: rgba(0, 0, 0, 0.85);
+            border-radius: 12px 12px 0 0;
+            max-height: 30vh;
+            overflow-y: auto;
+            backdrop-filter: blur(5px);
+        }
+
+        .input-wrapper {
+            background: rgba(0, 0, 0, 0.9);
+            padding: 8px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .chat-input {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 14px;
+        }
+
+        /* Иконка управления чатом */
+        .chat-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 3;
+            background: rgba(0, 0, 0, 0.7);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        /* Скрытие/показ чата */
+        .chat-hidden .messages-wrapper,
+        .chat-hidden .input-wrapper {
+            display: none;
+        }
     </style>
   </head>
   <body>
