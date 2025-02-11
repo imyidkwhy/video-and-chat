@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
@@ -119,51 +119,7 @@
         </div>
     </div>
     
-   <script src="/socket.io/socket.io.js"></script>
-<script>
-  const video = document.getElementById('video');
-  const socket = io('http://localhost:3000');
-
-  // Синхронизация при подключении
-  socket.on('video-sync', (state) => {
-    video.currentTime = state.currentTime;
-    state.isPlaying ? video.play() : video.pause();
-  });
-
-  // Обработчики управления
-  socket.on('play', (state) => {
-    video.currentTime = state.currentTime;
-    video.play();
-  });
-
-  socket.on('pause', (state) => {
-    video.currentTime = state.currentTime;
-    video.pause();
-  });
-
-  socket.on('seek', (state) => {
-    video.currentTime = state.currentTime;
-  });
-
-  // Отправка событий на сервер
-  video.addEventListener('play', () => {
-    socket.emit('play', video.currentTime);
-  });
-
-  video.addEventListener('pause', () => {
-    socket.emit('pause', video.currentTime);
-  });
-
-  video.addEventListener('seeked', () => {
-    socket.emit('seek', video.currentTime);
-  });
-
-  // Периодическое обновление времени
-  setInterval(() => {
-    if (!video.paused) {
-      socket.emit('time-update', video.currentTime);
-    }
-  }, 1000);
-</script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
