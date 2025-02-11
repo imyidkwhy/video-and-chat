@@ -29,3 +29,10 @@ socket.on('message', (data) => {
   chatDiv.scrollTop = chatDiv.scrollHeight
 })
 
+const inputs = document.querySelectorAll('input, textarea');
+
+inputs.forEach(input => {
+    input.addEventListener('focus', () => {
+        window.scrollTo(0, input.getBoundingClientRect().top + window.scrollY - 100); // Прокрутка вверх
+    });
+});
