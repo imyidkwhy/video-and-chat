@@ -36,19 +36,18 @@ io.on('connection', (socket) => {
   });
 
   // Обработчик воспроизведения видео
-  socket.on('play', () => {
-    socket.broadcast.emit('play');
-  });
+   socket.on('play', () => {
+        socket.broadcast.emit('play'); // Отправляем событие всем остальным пользователям
+    });
 
-  // Обработчик паузы видео
-  socket.on('pause', () => {
-    socket.broadcast.emit('pause');
-  });
+    socket.on('pause', () => {
+        socket.broadcast.emit('pause'); // Отправляем событие всем остальным пользователям
+    });
 
-  // Обработчик перемотки видео
-  socket.on('seek', (time) => {
-    socket.broadcast.emit('seek', time);
-  });
+    socket.on('seek', (time) => {
+        socket.broadcast.emit('seek', time); // Отправляем событие всем остальным пользователям
+    });
+});
 
   // Удаляем пользователя при отключении
   socket.on('disconnect', () => {
