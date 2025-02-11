@@ -1,4 +1,4 @@
-Вы
+
 const socket = io()
 let userName = ''
 
