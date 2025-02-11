@@ -67,3 +67,12 @@ socket.on('pause', () => {
 socket.on('seek', (time) => {
     videoElement.currentTime = time;
 });
+socket.on('videoState', (state) => {
+    if (state.isPlaying) {
+        videoElement.currentTime = state.currentTime;
+        videoElement.play();
+    } else {
+        videoElement.currentTime = state.currentTime;
+        videoElement.pause();
+    }
+});
