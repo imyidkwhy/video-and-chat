@@ -1,68 +1,60 @@
+const express = require('express');
+const http = require('http');
+const socketIo = require('socket.io');
 
-const socket = io()
-let userName = ''
+// Создаем экземпляр приложения Express
+const app = express();
+const server = http.createServer(app);
+const io = socketIo(server, {
+  cors: {
+    origin: '*',
+    methods: ['GET', 'POST'],
+  },
+});
 
-// Запрос имени при первом подключении
-while (!userName) {
-  userName = prompt('Пожалуйста, введите ваше имя:')?.trim()
-}
+// Статические файлы из папки 'public'
+app.use(express.static('public'));
 
-// Сохраняем имя и отправляем на сервер
-localStorage.setItem('chatName', userName)
-socket.emit('setName', userName)
+// Хранение пользователей
+const users = new Map();
 
-// Обработчик отправки сообщений
-document.getElementById('messageInput').addEventListener('keypress', (e) => {
-  if (e.key === 'Enter' && e.target.value.trim()) {
-    socket.emit('message', { text: e.target.value.trim() })
-    e.target.value = ''
-  }
-})
+// Обработка подключения новых пользователей
+io.on('connection', (socket) => {
+  // Обработчик установки имени
+  socket.on('setName', (name) => {
+    users.set(socket.id, name || 'Неизвестный');
+    console.log(`Пользователь ${socket.id} установил имя: ${name}`);
+  });
 
-// Обработчик получения сообщений
-socket.on('message', (data) => {
-  const chatDiv = document.getElementById('chat')
-  const messageElement = document.createElement('div')
-  messageElement.innerHTML = `
-    <strong>${data.name}:</strong> ${data.text}
-  `
-  chatDiv.appendChild(messageElement)
-  chatDiv.scrollTop = chatDiv.scrollHeight
-})
-
-const inputs = document.querySelectorAll('input, textarea');
-
-inputs.forEach(input => {
-    input.addEventListener('focus', () => {
-        window.scrollTo(0, input.getBoundingClientRect().top + window.scrollY - 100); // Прокрутка вверх
+  // Обработчик сообщений
+  socket.on('message', (msg) => {
+    const userName = users.get(socket.id) || 'Неизвестный';
+    io.emit('message', {
+      name: userName,
+      text: msg.text,
     });
+  });
+
+  // Обработчик воспроизведения видео
+  socket.on('play', () => {
+    socket.broadcast.emit('play');
+  });
+
+  // Обработчик паузы видео
+  socket.on('pause', () => {
+    socket.broadcast.emit('pause');
+  });
+
+  // Обработчик перемотки видео
+  socket.on('seek', (time) => {
+    socket.broadcast.emit('seek', time);
+  });
+
+  // Удаляем пользователя при отключении
+  socket.on('disconnect', () => {
+    users.delete(socket.id);
+  });
 });
 
-const videoElement = document.getElementById('video');
-// Отправляем событие при воспроизведении
-videoElement.addEventListener('play', () => {
-    socket.emit('play');
-});
-
-// Отправляем событие при паузе
-videoElement.addEventListener('pause', () => {
-    socket.emit('pause');
-});
-
-// Отправляем событие при перемотке
-videoElement.addEventListener('seeked', () => {
-    socket.emit('seek', videoElement.currentTime);
-});
-
-// Получаем события от сервера и обновляем состояние видео
-socket.on('play', () => {
-    videoElement.play();
-});
-
-socket.on('pause', () => {
-    videoElement.pause();
-});
-
-socket.on('seek', (time) => {
-    videoElement.currentTime = time;
-}); 
+// Запуск сервера
+server.listen(3000, () => console.log('Сервер запущен на порту 3000'));
