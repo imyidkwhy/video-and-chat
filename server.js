@@ -55,6 +55,41 @@ io.on('connection', (socket) => {
     users.delete(socket.id);
   });
 });
+let currentVideoState = {
+    isPlaying: false,
+    currentTime: 0
+};
+
+io.on('connection', (socket) => {
+    // Отправляем текущее состояние видео новому пользователю
+    socket.emit('videoState', currentVideoState);
+
+    // Обработчики событий
+    socket.on('play', () => {
+        currentVideoState.isPlaying = true;
+        socket.broadcast.emit('play');
+    });
+
+    socket.on('pause', () => {
+        currentVideoState.isPlaying = false;
+        socket.broadcast.emit('pause');
+    });
+
+    socket.on('seek', (time) => {
+        currentVideoState.currentTime = time;
+        socket.broadcast.emit('seek', time);
+    });
+});
+
+socket.on('videoState', (state) => {
+    if (state.isPlaying) {
+        videoElement.currentTime = state.currentTime;
+        videoElement.play();
+    } else {
+        videoElement.currentTime = state.currentTime;
+        videoElement.pause();
+    }
+});
 
 // Запуск сервера
 server.listen(3000, () => console.log('Сервер запущен на порту 3000'));
