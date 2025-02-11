@@ -36,3 +36,34 @@ inputs.forEach(input => {
         window.scrollTo(0, input.getBoundingClientRect().top + window.scrollY - 100); // Прокрутка вверх
     });
 });
+
+
+
+const videoElement = document.getElementById('video');
+// Отправляем событие при воспроизведении
+videoElement.addEventListener('play', () => {
+    socket.emit('play');
+});
+
+// Отправляем событие при паузе
+videoElement.addEventListener('pause', () => {
+    socket.emit('pause');
+});
+
+// Отправляем событие при перемотке
+videoElement.addEventListener('seeked', () => {
+    socket.emit('seek', videoElement.currentTime);
+});
+
+// Получаем события от сервера и обновляем состояние видео
+socket.on('play', () => {
+    videoElement.play();
+});
+
+socket.on('pause', () => {
+    videoElement.pause();
+});
+
+socket.on('seek', (time) => {
+    videoElement.currentTime = time;
+});
