@@ -81,15 +81,7 @@ io.on('connection', (socket) => {
     });
 });
 
-socket.on('videoState', (state) => {
-    if (state.isPlaying) {
-        videoElement.currentTime = state.currentTime;
-        videoElement.play();
-    } else {
-        videoElement.currentTime = state.currentTime;
-        videoElement.pause();
-    }
-});
+ 
 
 // Запуск сервера
 server.listen(3000, () => console.log('Сервер запущен на порту 3000'));
