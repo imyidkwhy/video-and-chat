@@ -1,36 +1,51 @@
-const express = require('express')
-const app = express()
-const server = require('http').createServer(app)
+const express = require('express');
+const app = express();
+const server = require('http').createServer(app);
 const io = require('socket.io')(server, {
   cors: {
     origin: '*',
     methods: ['GET', 'POST'],
   },
-})
+});
 
-app.use(express.static('public'))
-const users = new Map()
+app.use(express.static('public'));
+const users = new Map();
 
 io.on('connection', (socket) => {
   // Обработчик установки имени
   socket.on('setName', (name) => {
-    users.set(socket.id, name || 'Неизвестный')
-    console.log(`Пользователь ${socket.id} установил имя: ${name}`)
-  })
+    users.set(socket.id, name || 'Неизвестный');
+    console.log(`Пользователь ${socket.id} установил имя: ${name}`);
+  });
 
   // Обработчик сообщений
   socket.on('message', (msg) => {
-    const userName = users.get(socket.id) || 'Неизвестный'
+    const userName = users.get(socket.id) || 'Неизвестный';
     io.emit('message', {
       name: userName,
       text: msg.text,
-    })
-  })
+    });
+  });
+
+  // Обработчик воспроизведения видео
+  socket.on('play', () => {
+    socket.broadcast.emit('play');
+  });
+
+  // Обработчик паузы видео
+  socket.on('pause', () => {
+    socket.broadcast.emit('pause');
+  });
+
+  // Обработчик перемотки видео
+  socket.on('seek', (time) => {
+    socket.broadcast.emit('seek', time);
+  });
 
   // Удаляем пользователя при отключении
   socket.on('disconnect', () => {
-    users.delete(socket.id)
-  })
-})
+    users.delete(socket.id);
+  });
+});
 
-server.listen(3000, () => console.log('Сервер запущен на порту 3000'))
+server.listen(3000, () => console.log('Сервер запущен на порту 3000'));
