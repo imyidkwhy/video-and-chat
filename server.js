@@ -2,7 +2,6 @@ const express = require('express');
 const http = require('http');
 const socketIo = require('socket.io');
 
-// Создаем экземпляр приложения Express
 const app = express();
 const server = http.createServer(app);
 const io = socketIo(server, {
@@ -12,76 +11,58 @@ const io = socketIo(server, {
   },
 });
 
-// Статические файлы из папки 'public'
 app.use(express.static('public'));
 
-// Хранение пользователей
+// Состояние видео и пользователей
+let videoState = {
+  isPlaying: false,
+  currentTime: 0,
+  videoUrl: '' // Добавьте URL вашего видео при необходимости
+};
+
 const users = new Map();
 
-// Обработка подключения новых пользователей
 io.on('connection', (socket) => {
+  // Отправляем текущее состояние новому пользователю
+  socket.emit('video-sync', videoState);
+
   // Обработчик установки имени
   socket.on('setName', (name) => {
     users.set(socket.id, name || 'Неизвестный');
     console.log(`Пользователь ${socket.id} установил имя: ${name}`);
   });
 
-  // Обработчик сообщений
-  socket.on('message', (msg) => {
-    const userName = users.get(socket.id) || 'Неизвестный';
-    io.emit('message', {
-      name: userName,
-      text: msg.text,
-    });
+  // Обработчики управления видео
+  socket.on('play', (time) => {
+    videoState.isPlaying = true;
+    videoState.currentTime = time;
+    console.log(`Play at ${time}`);
+    io.emit('play', videoState); // Рассылаем всем
   });
 
-  // Обработчик воспроизведения видео
-  socket.on('play', () => {
-    socket.broadcast.emit('play');
+  socket.on('pause', (time) => {
+    videoState.isPlaying = false;
+    videoState.currentTime = time;
+    console.log(`Pause at ${time}`);
+    io.emit('pause', videoState);
   });
 
-  // Обработчик паузы видео
-  socket.on('pause', () => {
-    socket.broadcast.emit('pause');
-  });
-
-  // Обработчик перемотки видео
   socket.on('seek', (time) => {
-    socket.broadcast.emit('seek', time);
+    videoState.currentTime = time;
+    console.log(`Seek to ${time}`);
+    io.emit('seek', videoState);
   });
 
-  // Удаляем пользователя при отключении
+  // Обновление времени каждую секунду
+  socket.on('time-update', (time) => {
+    videoState.currentTime = time;
+  });
+
+  // Обработчик отключения
   socket.on('disconnect', () => {
     users.delete(socket.id);
+    console.log(`Пользователь ${socket.id} отключен`);
   });
 });
-let currentVideoState = {
-    isPlaying: false,
-    currentTime: 0
-};
 
-io.on('connection', (socket) => {
-    // Отправляем текущее состояние видео новому пользователю
-    socket.emit('videoState', currentVideoState);
-
-    // Обработчики событий
-    socket.on('play', () => {
-        currentVideoState.isPlaying = true;
-        socket.broadcast.emit('play');
-    });
-
-    socket.on('pause', () => {
-        currentVideoState.isPlaying = false;
-        socket.broadcast.emit('pause');
-    });
-
-    socket.on('seek', (time) => {
-        currentVideoState.currentTime = time;
-        socket.broadcast.emit('seek', time);
-    });
-});
-
- 
-
-// Запуск сервера
 server.listen(3000, () => console.log('Сервер запущен на порту 3000'));
