@@ -53,7 +53,7 @@ Index.html <!DOCTYPE html>
             left: 10px;
         }
 
-        /* Контейнер чата */
+        
         .chat-container {
             position: fixed;
             bottom: 40px;
@@ -82,7 +82,7 @@ Index.html <!DOCTYPE html>
             border-radius: 0 0 10px 10px;
         }
 
-        /* Стили для полноэкранного режима */
+       
         :fullscreen .chat-container {
             bottom: 40px;
             right: 40px;
@@ -90,7 +90,7 @@ Index.html <!DOCTYPE html>
 
         @media (max-width: 600px) {
             .your-class {
-                font-size: 14px; /* Уменьшение размера шрифта на мобильных устройствах */
+                font-size: 14px; 
             }
         }
       <input
@@ -103,16 +103,15 @@ Index.html <!DOCTYPE html>
 </head>
 <body>
     <div class="container">
-        <!-- Видеоплеер -->
+        
         <div class="video-container">
             <iframe  id="video" src="https://drive.google.com/file/d/1lah0BgukKDvRz13XKA2E1ndOsXg5YCtQ/preview" allow="autoplay"></iframe>
-            <!-- Кнопка полноэкранного режима -->
-    
+           
         </div>
         
         <div class="user-panel"></div>
         
-        <!-- Чат -->
+       
         <div class="chat-container" id="chatContainer">
             <div class="chat-messages" id="chat"></div>
             <input type="text" id="messageInput" placeholder="Напишите сообщение...">
