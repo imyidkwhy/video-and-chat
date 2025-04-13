@@ -1,1 +1,2 @@
 # videoAndChat
+npm install
